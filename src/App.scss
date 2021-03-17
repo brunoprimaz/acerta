@@ -1,3 +1,30 @@
+.btn-primary {
+    color: black !important;
+    background-color: #F79028 !important;
+    border-color: #F79028 !important;
+}
+
+.btn-secondary{
+    color: black !important;
+    background-color: #989898 !important;
+    border-color: #989898 !important;
+}
+
+.form-control:disabled{
+    background-color: #D4D4D4 !important;
+}
+
+.form-label{
+    color: #020202 !important;
+}
+.form-control {
+    color: #3C3C3C !important;
+}
+
+.table {
+    color: #3C3C3C !important;
+}
+
 #root, html{
     background-color:#224D74;
 }
@@ -25,4 +52,9 @@
 
 h5{
     color: white;
+}
+
+.empty-result{
+    color: white;
+    display: block;
 }

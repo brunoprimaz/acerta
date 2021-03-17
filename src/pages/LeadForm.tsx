@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -15,6 +15,7 @@ const Page: React.FC = () => {
 
   const history = useHistory();
   const { id } = useParams();
+  const [estadosCivis, setEstadosCivis] = useState([]);
 
   const schema = Yup.object().shape({
     nome: Yup.string().required("Informe o nome"),
@@ -28,15 +29,16 @@ const Page: React.FC = () => {
   });
 
   useEffect(() => {
-    retrieveLead();
+    load();
   },[])
 
-  async function retrieveLead(){
+  async function load(){
+    let responseEstadosCivis = await Api.get("tiposEstadoCivil"); 
+    setEstadosCivis(responseEstadosCivis.data)
     if (!id){
       return;
     }
-    let url = "leads/" + id;
-    let response = await Api.get(url);
+    let response = await Api.get("leads/" + id);
     formik.setValues(response.data);
   }
 
@@ -116,11 +118,10 @@ const Page: React.FC = () => {
                 <Form.Group>
                   <Form.Label>Estado civil</Form.Label>
                   <select className="form-control" onChange={changeMaritalStatus} name="estadoCivil" value={formik.values.estadoCivil}>
-                  <option value="">Selecione</option>
-                    <option value="Solteiro(a)">Solteiro(a)</option>
-                    <option value="Casado(a)">Casado(a)</option>
-                    <option value="Viúvo(a)">Viúvo(a)</option>
-                    <option value="Separado(a)">Separado(a)</option>
+                    <option value="">Selecione</option>
+                    {estadosCivis.map((item:any, index) =>
+                      <option key={index} value={item.nomeEstadoCivil}>{item.nomeEstadoCivil}</option>
+                    )}
                   </select>
                   {formik.errors.estadoCivil && (
                     <span className="form-error-message">{formik.errors.estadoCivil}</span>
