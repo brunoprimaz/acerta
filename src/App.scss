@@ -1,0 +1,28 @@
+#root, html{
+    background-color:#224D74;
+}
+
+.table-result-list{
+    .action{
+        width: 30px;
+        cursor: pointer;
+    }
+    thead > tr > th{
+        color: white;
+        border: none;
+        padding-bottom: 5px;
+    }
+    tbody > tr > td {
+        border-color: black;
+        background-color: white;
+    }
+}
+
+.form-error-message{
+    color: red;
+}
+
+
+h5{
+    color: white;
+}
