@@ -3,6 +3,7 @@ import React, { useState  } from 'react';
 import Button from 'react-bootstrap/Button';
 import Header from '../components/Header';
 import Filter from '../components/Filter';
+import Spinner from '../components/Spinner';
 import ResultList from '../components/ResultList';
 import { useHistory } from "react-router-dom";
 import * as Api from '../services/Api';
@@ -10,6 +11,7 @@ import * as Api from '../services/Api';
 const Page: React.FC = () => { 
   const history = useHistory();
   const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(false);
   const fieldsLeads = [
     { title : 'E-mail', key : 'email'},
     { title : 'Nome', key : 'nome'},
@@ -26,8 +28,14 @@ const Page: React.FC = () => {
 
   async function remove(id){
     let url = "leads/" + id;
-    await Api.remove(url);
-    find();
+    try{
+      setLoading(true);
+      await Api.remove(url);
+      find();
+    } catch(e){
+      alert(e)
+    }
+    setLoading(false);
   }
 
   async function find(values?){
@@ -37,8 +45,14 @@ const Page: React.FC = () => {
       let cpf = values.cpf.replace(/[^0-9]/g,'');
       url += "&cpf_like=" + cpf;
     }
-    let response = await Api.get(url);
-    setLeads(response.data);
+    try {
+      setLoading(true);
+      let response = await Api.get(url);
+      setLeads(response.data);
+    } catch(e){
+      alert(e)
+    }
+    setLoading(false);
   }
   
   return (
@@ -54,6 +68,9 @@ const Page: React.FC = () => {
         {leads.length > 0 && (
           <ResultList fields={fieldsLeads} list={leads} editFunction={edit} removeFunction={remove}>
           </ResultList>
+        )}
+        {loading && (
+          <Spinner></Spinner>
         )}
       </div>
   );

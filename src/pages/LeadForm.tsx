@@ -10,12 +10,14 @@ import Header from '../components/Header';
 import { useHistory, useParams } from "react-router-dom";
 import * as Yup from 'yup';
 import * as Api from '../services/Api';
+import Spinner from '../components/Spinner';
 
 const Page: React.FC = () => {
 
   const history = useHistory();
   const { id } = useParams();
   const [estadosCivis, setEstadosCivis] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const schema = Yup.object().shape({
     nome: Yup.string().required("Informe o nome"),
@@ -38,8 +40,14 @@ const Page: React.FC = () => {
     if (!id){
       return;
     }
-    let response = await Api.get("leads/" + id);
-    formik.setValues(response.data);
+    try {
+      setLoading(true);
+      let response = await Api.get("leads/" + id);
+      formik.setValues(response.data);
+    } catch(e){
+      alert(e)
+    }
+    setLoading(false);
   }
 
   const formik = useFormik({
@@ -53,15 +61,21 @@ const Page: React.FC = () => {
       nomeConjugue : ''
     },
     onSubmit: async () => {
-      let data = formik.values;
-      data.cpf = data.cpf.replace(/[^0-9]/g,'');
-      if (data.id){
-        await Api.put("leads/" + formik.values.id, data)
-      } else {
-        data.id = new Date().getTime().toString();
-        await Api.post("leads", data)
+      try {
+        setLoading(true);
+        let data = formik.values;
+        data.cpf = data.cpf.replace(/[^0-9]/g,'');
+        if (data.id){
+          await Api.put("leads/" + formik.values.id, data)
+        } else {
+          data.id = new Date().getTime().toString();
+          await Api.post("leads", data)
+        }
+        close()
+      } catch(e){
+        alert(e)
       }
-      close()
+      setLoading(false);
     }
   });
 
@@ -76,7 +90,12 @@ const Page: React.FC = () => {
 
   return (
       <div>        
-        <Header title="Cadastro de Leads"></Header>
+        {formik.values.id && (
+          <Header title="Alteração de Leads"></Header>
+        )}
+        {!formik.values.id && (
+          <Header title="Cadastro de Leads"></Header>
+        )}
         <Card>
           <Card.Body>                
             <Form noValidate autoComplete="off" onSubmit={formik.handleSubmit}>
@@ -88,7 +107,7 @@ const Page: React.FC = () => {
                            name="nome" 
                            value={formik.values.nome} 
                            onChange={formik.handleChange}/>
-                    {formik.errors.nome && (
+                    {formik.errors.nome && formik.touched && formik.touched.nome && (
                       <span className="form-error-message">{formik.errors.nome}</span>
                     )}
                     
@@ -98,7 +117,7 @@ const Page: React.FC = () => {
                   <Form.Group >
                     <Form.Label>CPF</Form.Label>
                     <InputMask className="form-control" name="cpf" value={formik.values.cpf} onChange={formik.handleChange} mask="999.999.999-99"/>
-                    {formik.errors.cpf && (
+                    {formik.errors.cpf && formik.touched && formik.touched.cpf && (
                       <span className="form-error-message">{formik.errors.cpf}</span>
                     )}
                   </Form.Group>
@@ -109,7 +128,7 @@ const Page: React.FC = () => {
                   <Form.Group>
                     <Form.Label>E-mail</Form.Label>
                     <input className="form-control" name="email" value={formik.values.email} onChange={formik.handleChange}/>
-                    {formik.errors.email && (
+                    {formik.errors.email && formik.touched && formik.touched.email && (
                       <span className="form-error-message">{formik.errors.email}</span>
                     )}
                   </Form.Group>
@@ -123,7 +142,7 @@ const Page: React.FC = () => {
                       <option key={index} value={item.nomeEstadoCivil}>{item.nomeEstadoCivil}</option>
                     )}
                   </select>
-                  {formik.errors.estadoCivil && (
+                  {formik.errors.estadoCivil && formik.touched && formik.touched.estadoCivil && (
                     <span className="form-error-message">{formik.errors.estadoCivil}</span>
                   )}
                 </Form.Group>
@@ -134,7 +153,7 @@ const Page: React.FC = () => {
                   <Form.Group >
                     <Form.Label>Nome do cônjuge</Form.Label>
                     <input className="form-control" disabled={formik.values.estadoCivil !== 'Casado(a)'} name="nomeConjugue" value={formik.values.nomeConjugue} onChange={formik.handleChange}/>
-                    {formik.errors.nomeConjugue && (
+                    {formik.errors.nomeConjugue && formik.touched && formik.touched.nomeConjugue && (
                       <span className="form-error-message">{formik.errors.nomeConjugue}</span>
                     )}
                   </Form.Group>
@@ -148,13 +167,17 @@ const Page: React.FC = () => {
                 </Col>
                 <Col className="d-flex justify-content-end" md="6">
                   <Button variant="primary" type="submit">
-                    Cadastrar
+                    {formik.values.id && ("Alterar")}
+                    {!formik.values.id && ("Cadastrar")}
                   </Button>
                 </Col>
               </Form.Row>
             </Form>     
           </Card.Body>
         </Card>
+        {loading && (
+          <Spinner></Spinner>
+        )}
       </div>
 
   );

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const urlServer = process.env.urlServer || 'http://localhost:3000/';
+const urlServer = 'https://db-teste-acerta.herokuapp.com/';
 
 export async function get(url) {
     let response = await axios.get(urlServer + url);
