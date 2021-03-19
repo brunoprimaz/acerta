@@ -21,8 +21,8 @@ const Page: React.FC = () => {
 
   const schema = Yup.object().shape({
     nome: Yup.string().required("Informe o nome"),
-    email: Yup.string().required("Informe o e-mail"),
-    cpf: Yup.string().required("Informe o CPF"),
+    email: Yup.string().required("Informe o e-mail").email("Informe o e-mail corretamente"),
+    cpf: Yup.string().required("Informe o CPF").test('length', 'Informe o CPF corretamente', val => (val || '').replace(/[^0-9]/g,'').length === 11),
     estadoCivil: Yup.string().required("Informe o estado civil"),
     nomeConjugue: Yup.string().when('estadoCivil', {
       is: 'Casado(a)',
@@ -83,7 +83,7 @@ const Page: React.FC = () => {
     history.push("/");
   }
 
-  function changeMaritalStatus(e) {
+  function changeEstadoCivil(e) {
     formik.values.nomeConjugue = ''
     formik.handleChange(e);
   }
@@ -136,7 +136,7 @@ const Page: React.FC = () => {
                 <Col md="6">
                 <Form.Group>
                   <Form.Label>Estado civil</Form.Label>
-                  <select className="form-control" onChange={changeMaritalStatus} name="estadoCivil" value={formik.values.estadoCivil}>
+                  <select className="form-control" onChange={changeEstadoCivil} name="estadoCivil" value={formik.values.estadoCivil}>
                     <option value="">Selecione</option>
                     {estadosCivis.map((item:any, index) =>
                       <option key={index} value={item.nomeEstadoCivil}>{item.nomeEstadoCivil}</option>
